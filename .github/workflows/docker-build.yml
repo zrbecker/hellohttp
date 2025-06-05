@@ -78,28 +78,17 @@ jobs:
 
   merge-images:
     runs-on: ubuntu-latest
-    needs: build-images
+    needs:
+      - vars
+      - build-images
     steps:
-      - id: vars
-        run: |
-          REPO="${DOCKER_ORG}/${DOCKER_IMAGE}"
-          VERSION="${GITHUB_REF_NAME}"
-
-          TAGS="${REPO}:${VERSION}"
-          if [ "$VERSION" = "main" ]; then
-            TAGS="${TAGS:+$TAGS,}$REPO:latest"
-          fi
-
-          echo "repo=${REPO}" >> $GITHUB_OUTPUT
-          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
-
       - uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - run: |
-          TAGS="${{ steps.vars.outputs.tags }}"
+          TAGS="${{ needs.vars.outputs.tags }}"
           docker buildx imagetools create \
             $(printf -- '--tag %s ' ${TAGS//,/ }) \
-            ${{ steps.vars.outputs.repo }}@${{ needs.build-images.outputs.digest-amd64 }} \
-            ${{ steps.vars.outputs.repo }}@${{ needs.build-images.outputs.digest-arm64 }}
+            ${{ needs.vars.outputs.repo }}@${{ needs.build-images.outputs.digest-amd64 }} \
+            ${{ needs.vars.outputs.repo }}@${{ needs.build-images.outputs.digest-arm64 }}
