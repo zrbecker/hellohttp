@@ -25,7 +25,15 @@ jobs:
     steps:
       - id: vars
         run: |
-          echo "tags=${DOCKER_ORG}/${DOCKER_IMAGE}:${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          REPO="${DOCKER_ORG}/${DOCKER_IMAGE}"
+          VERSION="${GITHUB_REF_NAME}"
+
+          TAGS="${REPO}:${VERSION}"
+          if [ "$VERSION" = "main" ]; then
+            TAGS="${TAGS:+$TAGS,}$REPO:latest"
+          fi
+
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - uses: docker/login-action@v3
         with:
