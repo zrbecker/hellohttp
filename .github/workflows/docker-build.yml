@@ -20,7 +20,7 @@ jobs:
       version: ${{ steps.vars.outputs.version }}
     steps:
       - id: vars
-        run: echo "version=" >> $GITHUB_OUTPUT
+        run: echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
 
       - uses: docker/login-action@v3
         with:
