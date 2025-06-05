@@ -62,7 +62,7 @@ jobs:
           tags: ${{ steps.vars.outputs.tags }}
 
       - id: digest
-        run: echo "::set-output name=digest-${{ matrix.arch }}::${{ steps.build.outputs.digest }}"
+        run: echo "digest-${{ matrix.arch }}=${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
 
   merge-images:
     runs-on: ubuntu-latest
