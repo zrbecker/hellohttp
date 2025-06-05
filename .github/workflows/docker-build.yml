@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - v0.38.x
       - v1.x
       - v2.x
     tags:
