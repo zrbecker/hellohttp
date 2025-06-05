@@ -83,5 +83,5 @@ jobs:
       - run: |
           docker buildx imagetools create \
             --tag ${{ steps.vars.outputs.tags }} \
-            ${{ needs.build-images.outputs.digest-amd64 }} \
-            ${{ needs.build-images.outputs.digest-arm64 }}
+            ${{steps.vars.outputs.repo}}:${{ needs.build-images.outputs.digest-amd64 }} \
+            ${{steps.vars.outputs.repo}}:${{ needs.build-images.outputs.digest-arm64 }}
