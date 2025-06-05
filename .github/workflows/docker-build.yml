@@ -10,7 +10,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - id: version
-        run: echo "version=latest" >> $GITHUB_ENV
+        run: echo "version=latest" >> $GITHUB_OUTPUT
 
       - uses: docker/login-action@v3
         with:
