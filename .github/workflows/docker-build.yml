@@ -22,4 +22,4 @@ jobs:
         with:
           platforms: linux/amd64
           push: true
-          tags: zrbecker/hellohttp:${{ steps.version.outputs.version }}-amd64
+          tags: zrbecker/hellohttp
