@@ -19,18 +19,26 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: amd64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.os }}
     outputs:
       tags: ${{ steps.vars.outputs.tags }}
     steps:
       - id: vars
         run: |
           REPO="${DOCKER_ORG}/${DOCKER_IMAGE}"
-          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${GITHUB_REF_NAME}-${{ matrix.arch }}"
 
           TAGS="${REPO}:${VERSION}"
           if [ "$VERSION" = "main" ]; then
-            TAGS="${TAGS:+$TAGS,}$REPO:latest"
+            TAGS="${TAGS:+$TAGS,}$REPO:latest-${{ matrix.arch }}"
           fi
 
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
@@ -43,6 +51,6 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64
+          platforms: linux/${{ matrix.arch }}
           push: true
           tags: ${{ steps.vars.outputs.tags }}
