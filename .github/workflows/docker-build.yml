@@ -73,6 +73,7 @@ jobs:
             TAGS="${TAGS:+$TAGS,}$REPO:latest"
           fi
 
+          echo "repo=${REPO}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - uses: docker/login-action@v3
