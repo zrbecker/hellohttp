@@ -60,7 +60,6 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           push: true
           tags: ${{ steps.vars.outputs.tags }}
-          outputs: type=image,name=${{ steps.vars.outputs.repo }},digest=true
 
       - id: digest
         run: echo "::set-output name=digest-${{ matrix.arch }}::${{ steps.build.outputs.digest }}"
@@ -88,6 +87,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - run: |
           docker buildx imagetools create \
-            --tag ${{ steps.vars.outputs.tags }} \
+            --tag $(printf -- '--tag %s ' ${TAGS//,/ }) \
             ${{steps.vars.outputs.repo}}@${{ needs.build-images.outputs.digest-amd64 }} \
             ${{steps.vars.outputs.repo}}@${{ needs.build-images.outputs.digest-arm64 }}
