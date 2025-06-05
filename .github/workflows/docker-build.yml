@@ -57,7 +57,7 @@ jobs:
           tags: ${{ steps.vars.outputs.tags }}
 
       - id: digest
-        run: echo "digest-$${{ matrix.arch }}=${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
+        run: echo "::set-output name=digest-${{ matrix.arch }}::${{ steps.build.outputs.digest }}"
 
   merge-images:
     runs-on: ubuntu-latest
@@ -83,4 +83,4 @@ jobs:
           docker buildx imagetools create \
             --tag ${{ steps.vars.outputs.tags }} \
             ${{ needs.build-images.outputs.digest-amd64 }} \
-            ${{ needs.build-images.outputs.digest-arm64}}
+            ${{ needs.build-images.outputs.digest-arm64 }}
