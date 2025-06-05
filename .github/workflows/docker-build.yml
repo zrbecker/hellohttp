@@ -86,7 +86,8 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - run: |
+          TAGS="${{ steps.vars.outputs.tags }}"
           docker buildx imagetools create \
-            --tag $(printf -- '--tag %s ' ${TAGS//,/ }) \
-            ${{steps.vars.outputs.repo}}@${{ needs.build-images.outputs.digest-amd64 }} \
-            ${{steps.vars.outputs.repo}}@${{ needs.build-images.outputs.digest-arm64 }}
+            $(printf -- '--tag %s ' ${TAGS//,/ }) \
+            ${{ steps.vars.outputs.repo }}@${{ needs.build-images.outputs.digest-amd64 }} \
+            ${{ steps.vars.outputs.repo }}@${{ needs.build-images.outputs.digest-arm64 }}
