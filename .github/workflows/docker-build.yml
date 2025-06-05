@@ -46,6 +46,7 @@ jobs:
             TAGS="${TAGS:+$TAGS,}$REPO:latest-${{ matrix.arch }}"
           fi
 
+          echo "repo=${REPO}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - uses: docker/login-action@v3
@@ -59,6 +60,7 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           push: true
           tags: ${{ steps.vars.outputs.tags }}
+          outputs: type=image,name=${{ steps.vars.outputs.repo }},digest=true
 
       - id: digest
         run: echo "::set-output name=digest-${{ matrix.arch }}::${{ steps.build.outputs.digest }}"
