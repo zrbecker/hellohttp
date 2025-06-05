@@ -17,6 +17,10 @@ env:
   DOCKER_ORG: zrbecker
   DOCKER_IMAGE: hellohttp
 
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-images:
     strategy:
@@ -83,5 +87,5 @@ jobs:
       - run: |
           docker buildx imagetools create \
             --tag ${{ steps.vars.outputs.tags }} \
-            ${{steps.vars.outputs.repo}}:${{ needs.build-images.outputs.digest-amd64 }} \
-            ${{steps.vars.outputs.repo}}:${{ needs.build-images.outputs.digest-arm64 }}
+            ${{steps.vars.outputs.repo}}@${{ needs.build-images.outputs.digest-amd64 }} \
+            ${{steps.vars.outputs.repo}}@${{ needs.build-images.outputs.digest-arm64 }}
