@@ -22,7 +22,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  vars:
+    runs-on: ubuntu-latest
+    outputs:
+      repo: ${{ steps.set.outputs.repo }}
+      tags: ${{ steps.set.outputs.tags }}
+    steps:
+      - id: set
+        run: |
+          REPO="${DOCKER_ORG}/${DOCKER_IMAGE}"
+          VERSION="${GITHUB_REF_NAME}"
+
+          TAGS="${REPO}:${VERSION}"
+          if [ "$VERSION" = "main" ]; then
+            TAGS="${TAGS:+$TAGS,}$REPO:latest"
+          fi
+
+          echo "repo=${REPO}" >> $GITHUB_OUTPUT
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+
   build-images:
+    needs: vars
     strategy:
       fail-fast: false
       matrix:
@@ -36,17 +56,9 @@ jobs:
       digest-amd64: ${{ steps.digest.outputs.digest-amd64 }}
       digest-arm64: ${{ steps.digest.outputs.digest-arm64 }}
     steps:
-      - id: vars
+      - id: tags
         run: |
-          REPO="${DOCKER_ORG}/${DOCKER_IMAGE}"
-          VERSION="${GITHUB_REF_NAME}-${{ matrix.arch }}"
-
-          TAGS="${REPO}:${VERSION}"
-          if [ "$VERSION" = "main" ]; then
-            TAGS="${TAGS:+$TAGS,}$REPO:latest-${{ matrix.arch }}"
-          fi
-
-          echo "repo=${REPO}" >> $GITHUB_OUTPUT
+          TAGS=$(echo "${{ needs.vars.outputs.tags }}" | sed "s/[^,]*/&-${{ matrix.arch }}/g")
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - uses: docker/login-action@v3
@@ -59,7 +71,7 @@ jobs:
         with:
           platforms: linux/${{ matrix.arch }}
           push: true
-          tags: ${{ steps.vars.outputs.tags }}
+          tags: ${{ steps.tags.outputs.tags }}
 
       - id: digest
         run: echo "digest-${{ matrix.arch }}=${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
