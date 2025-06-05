@@ -19,7 +19,7 @@ env:
   DOCKER_IMAGE: hellohttp
 
 concurrency:
-  group: docker-build-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
