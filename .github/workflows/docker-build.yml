@@ -16,7 +16,7 @@ on:
 
 jobs:
   docker-build:
-    uses: zrbecker/github-ci/.github/workflows/docker-build.yml@v1.0.0
+    uses: zrbecker/github-ci/.github/workflows/docker-build.yml@v1
     with:
       ns: ${{ vars.HELLOHTTP_DOCKER_NS || 'zrbecker' }}
       repo: ${{ vars.HELLOHTTP_DOCKER_REPO || 'hellohttp' }}
