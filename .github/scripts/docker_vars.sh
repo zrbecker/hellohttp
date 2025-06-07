@@ -6,9 +6,9 @@ set -eu
 : "${GITHUB_REF:?GITHUB_REF must be set}"
 : "${GITHUB_REF_NAME:?GITHUB_REF_NAME must be set}"
 
-echo "DOCKER_NS=${DOCKER_NS}"
+echo "DOCKER_NS=\"${DOCKER_NS}\""
 echo "DOCKER_REPO=\"${DOCKER_REPO}\""
-echo "DOCKER_REPO_PATH=${DOCKER_NS}/${DOCKER_REPO}"
+echo "DOCKER_REPO_PATH=\"${DOCKER_NS}/${DOCKER_REPO}\""
 
 PUSH="false"
 TAGS=""
@@ -31,8 +31,8 @@ elif printf '%s\n' "$GITHUB_REF" | grep -q '^refs/tags/'; then
 else
     TAGS=""
 fi
-echo "DOCKER_TAGS=${TAGS}"
-echo "DOCKER_PUSH=${PUSH}"
+echo "DOCKER_TAGS=\"${TAGS}\""
+echo "DOCKER_PUSH=\"${PUSH}\""
 
 REFS=""
 if [ -n "$TAGS" ]; then
@@ -44,7 +44,7 @@ if [ -n "$TAGS" ]; then
         REFS="${REFS:+$REFS,}${DOCKER_NS}/${DOCKER_REPO}:${tag}"
     done
 fi
-echo "DOCKER_REFS=${REFS}"
+echo "DOCKER_REFS=\"${REFS}"\"
 
 TAG_ARGS=""
 if [ -n "$REFS" ]; then
@@ -56,4 +56,4 @@ if [ -n "$REFS" ]; then
         TAG_ARGS="${TAG_ARGS:+$TAG_ARGS }--tag $ref"
     done
 fi
-echo "DOCKER_TAG_ARGS=${TAG_ARGS}"
+echo "DOCKER_TAG_ARGS=\"${TAG_ARGS}"\"
