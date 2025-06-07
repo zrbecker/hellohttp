@@ -57,7 +57,7 @@ jobs:
           repo: ${{ inputs.repo }}
           tag-suffix: "-${{ matrix.arch }}"
 
-      - if: ${{ steps.docker-vars.outputs.push }}
+      - if: ${{ steps.docker-vars.outputs.push == 'true' }}
         uses: docker/login-action@v3
         with:
           username: ${{ inputs.username }}
@@ -89,9 +89,7 @@ jobs:
           ns: ${{ inputs.ns }}
           repo: ${{ inputs.repo }}
 
-      - run: echo DEBUG PUSH ${{ steps.docker-vars.outputs.push }}
-
-      - if: ${{ steps.docker-vars.outputs.push }}
+      - if: ${{ steps.docker-vars.outputs.push == 'true' }}
         uses: docker/login-action@v3
         with:
           username: ${{ inputs.username }}
