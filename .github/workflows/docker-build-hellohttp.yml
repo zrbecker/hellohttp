@@ -2,6 +2,7 @@ name: docker-build-hellohttp
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches: ["main", "v1"]
     tags:
@@ -12,7 +13,7 @@ on:
 
 jobs:
   docker-build:
-    uses: ./.github/workflows/docker-build.yml
+    uses: ./.github/workflows/reusable-docker-build.yml
     with:
       ns: zrbecker
       repo: hellohttp

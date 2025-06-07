@@ -1,4 +1,4 @@
-name: docker-build
+name: reusable-docker-build
 
 on:
   workflow_call:
@@ -57,7 +57,7 @@ jobs:
           repo: ${{ inputs.repo }}
           tag-suffix: "-${{ matrix.arch }}"
 
-      - if: ${{ steps.docker-vars.outputs.push }}
+      - if: ${{ steps.docker-vars.outputs.push == 'true' }}
         uses: docker/login-action@v3
         with:
           username: ${{ inputs.username }}
@@ -71,7 +71,7 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           context: .
           file: ${{ inputs.file }}
-          push: ${{ steps.docker-vars.outputs.push }}
+          push: ${{ steps.docker-vars.outputs.push == 'true' }}
           tags: ${{ steps.docker-vars.outputs.refs }}
 
       - id: digest
@@ -89,13 +89,13 @@ jobs:
           ns: ${{ inputs.ns }}
           repo: ${{ inputs.repo }}
 
-      - if: ${{ steps.docker-vars.outputs.push }}
+      - if: ${{ steps.docker-vars.outputs.push == 'true' }}
         uses: docker/login-action@v3
         with:
           username: ${{ inputs.username }}
           password: ${{ secrets.password }}
 
-      - if: ${{ steps.docker-vars.outputs.push }}
+      - if: ${{ steps.docker-vars.outputs.push == 'true' }}
         run: |
           docker buildx imagetools create \
             ${{ steps.docker-vars.outputs.tag-args }} \
