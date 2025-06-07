@@ -32,10 +32,10 @@ runs:
     - id: set
       run: |
         eval "$(./.github/scripts/docker_vars.sh)"
-        echo "push"=$DOCKER_PUSH >> "$GITHUB_OUTPUT"
         echo "repo-path=$DOCKER_REPO_PATH" >> "$GITHUB_OUTPUT"
         echo "refs=$DOCKER_REFS" >> "$GITHUB_OUTPUT"
         echo "tag-args=$DOCKER_TAG_ARGS" >> "$GITHUB_OUTPUT"
+        echo "push"=$DOCKER_PUSH >> "$GITHUB_OUTPUT"
       shell: bash
       env:
         DOCKER_NS: ${{ inputs.ns }}
@@ -47,4 +47,5 @@ runs:
         echo "repo-path=${{ steps.set.outputs.repo-path }}"
         echo "refs=${{ steps.set.outputs.refs }}"
         echo "tag-args=${{ steps.set.outputs.tag-args }}"
+        echo "push=${{ steps.set.outputs.push }}"
       shell: bash
