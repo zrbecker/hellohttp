@@ -31,7 +31,7 @@ runs:
   steps:
     - id: set
       run: |
-        eval "$(./.github/scripts/docker_vars.sh)"
+        eval "$(${{ github.action_path }}/docker_vars.sh)"
         echo "repo-path=$DOCKER_REPO_PATH" >> "$GITHUB_OUTPUT"
         echo "refs=$DOCKER_REFS" >> "$GITHUB_OUTPUT"
         echo "tag-args=$DOCKER_TAG_ARGS" >> "$GITHUB_OUTPUT"
