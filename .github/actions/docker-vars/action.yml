@@ -1,0 +1,50 @@
+name: action-docker-vars
+description: Generate and export Docker tag variables
+
+inputs:
+  ns:
+    description: "Docker organization or namespace"
+    required: true
+  repo:
+    description: "Repository name for the Docker image"
+    required: true
+  tag-suffix:
+    description: "Optional suffix for the Docker tag"
+    required: false
+
+outputs:
+  repo-path:
+    description: "Repository path (namespace/repo)"
+    value: ${{ steps.set.outputs.repo-path }}
+  refs:
+    description: "Comma-separated Docker image references with tags"
+    value: ${{ steps.set.outputs.refs }}
+  tag-args:
+    description: "Arguments for docker buildx imagetools create"
+    value: ${{ steps.set.outputs.tag-args }}
+  push:
+    description: "Whether the Docker image should be pushed"
+    value: ${{ steps.set.outputs.push == 'true' }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: set
+      run: |
+        $(./.github/scripts/docker_vars.sh)
+        echo "push"=$DOCKER_PUSH >> "$GITHUB_OUTPUT"
+        echo "repo-path=$DOCKER_REPO_PATH" >> "$GITHUB_OUTPUT"
+        echo "refs=$DOCKER_REFS" >> "$GITHUB_OUTPUT"
+        echo "tag-args=$DOCKER_TAG_ARGS" >> "$GITHUB_OUTPUT"
+      shell: bash
+      env:
+        DOCKER_NS: ${{ inputs.ns }}
+        DOCKER_REPO: ${{ inputs.repo }}
+        DOCKER_TAG_SUFFIX: ${{ inputs.tag-suffix }}
+
+    - run: |
+        echo "=== OUTPUTS ==="
+        echo "repo-path=${{ steps.set.outputs.repo-path }}"
+        echo "refs=${{ steps.set.outputs.refs }}"
+        echo "tag-args=${{ steps.set.outputs.tag-args }}"
+      shell: bash

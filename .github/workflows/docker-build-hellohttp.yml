@@ -1,13 +1,9 @@
-name: Build hellohttp Docker Image
+name: docker-build-hellohttp
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - v0.38.x
-      - v1.x
-      - v2.x
+    branches: ["main", "v1"]
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+"
@@ -16,10 +12,11 @@ on:
 
 jobs:
   docker-build:
-    uses: zrbecker/github-ci/.github/workflows/docker-build.yml@v1
+    uses: ./.github/workflows/reusable/docker-build.yml
     with:
-      ns: ${{ vars.HELLOHTTP_DOCKER_NS || 'zrbecker' }}
-      repo: ${{ vars.HELLOHTTP_DOCKER_REPO || 'hellohttp' }}
+      ns: zrbecker
+      repo: hellohttp
       username: ${{ vars.DOCKERHUB_USERNAME }}
+      file: ./Dockerfile
     secrets:
       password: ${{ secrets.DOCKERHUB_PASSWORD }}

@@ -1,0 +1,103 @@
+name: docker-build
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        description: "Docker registery url"
+        required: false
+        type: string
+      ns:
+        description: "Docker organization or namespace"
+        required: true
+        type: string
+      repo:
+        description: "Docker repository name"
+        required: true
+        type: string
+      username:
+        description: "Username for Docker registry authentication"
+        required: true
+        type: string
+      file:
+        description: "Path to Dockerfile to use for building the image"
+        required: false
+        type: string
+        default: ./Dockerfile
+    secrets:
+      password:
+        description: "Password or token for Docker registry authentication"
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{inputs.registry}}-${{inputs.ns}}-${{inputs.repo}}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+
+    outputs:
+      digest-amd64: ${{ steps.digest.outputs.digest-amd64 }}
+      digest-arm64: ${{ steps.digest.outputs.digest-arm64 }}
+      repo-path: ${{ steps.docker-vars.outputs.repo-path }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: docker-vars
+        uses: ./.github/actions/docker-vars
+        with:
+          ns: ${{ inputs.ns }}
+          repo: ${{ inputs.repo }}
+          tag-suffix: "-${{ matrix.arch }}"
+
+      - if: ${{ steps.docker-vars.outputs.push }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ inputs.username }}
+          password: ${{ secrets.password }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/${{ matrix.arch }}
+          context: .
+          file: ${{ inputs.file }}
+          push: ${{ steps.docker-vars.outputs.push }}
+          tags: ${{ steps.docker-vars.outputs.refs }}
+
+      - id: digest
+        run: echo "digest-${{ matrix.arch }}=${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+  merge:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: docker-vars
+        uses: ./.github/actions/docker-vars
+        with:
+          ns: ${{ inputs.ns }}
+          repo: ${{ inputs.repo }}
+
+      - if: ${{ steps.docker-vars.outputs.push }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ inputs.username }}
+          password: ${{ secrets.password }}
+
+      - if: ${{ steps.docker-vars.outputs.push }}
+        run: |
+          docker buildx imagetools create \
+            ${{ steps.docker-vars.outputs.tag-args }} \
+            ${{ needs.build.outputs.repo-path }}@${{ needs.build.outputs.digest-amd64 }} \
+            ${{ needs.build.outputs.repo-path }}@${{ needs.build.outputs.digest-arm64 }}
