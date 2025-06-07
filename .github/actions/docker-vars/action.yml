@@ -31,7 +31,7 @@ runs:
   steps:
     - id: set
       run: |
-        $(./.github/scripts/docker_vars.sh)
+        eval "$(./.github/scripts/docker_vars.sh)"
         echo "push"=$DOCKER_PUSH >> "$GITHUB_OUTPUT"
         echo "repo-path=$DOCKER_REPO_PATH" >> "$GITHUB_OUTPUT"
         echo "refs=$DOCKER_REFS" >> "$GITHUB_OUTPUT"
