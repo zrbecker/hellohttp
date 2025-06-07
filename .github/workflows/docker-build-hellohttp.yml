@@ -12,7 +12,7 @@ on:
 
 jobs:
   docker-build:
-    uses: ./.github/workflows/reusable/docker-build.yml
+    uses: ./.github/workflows/docker-build.yml
     with:
       ns: zrbecker
       repo: hellohttp
